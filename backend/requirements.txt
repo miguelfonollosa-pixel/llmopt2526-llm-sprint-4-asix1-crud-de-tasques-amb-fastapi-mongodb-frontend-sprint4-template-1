@@ -1,10 +1,6 @@
-annotated-types==0.6.0
-    # via pydantic
-anyio==3.7.1
-    # via starlette
-click==8.1.7
-    # via uvicorn
-dnspython==2.4.2
-    # via
-    #   email-validator
-    #   pymongo
+fastapi
+uvicorn
+pydantic
+email-validator
+pymongo[srv]
+dnspython
