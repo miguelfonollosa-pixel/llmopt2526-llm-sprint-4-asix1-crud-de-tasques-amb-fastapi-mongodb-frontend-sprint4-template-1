@@ -33,7 +33,7 @@ client = AsyncMongoClient(mongodb_url)
 db = client.cine_db
 movie_collection = db.get_collection("peliculas")
 
-#----Model Pydantic---------
+#-----Model Pydantic----
 
 # Els documents de MongoDB tenen `_id` de tipus ObjectId.
 # Aquí definim PyObjectId com un string serialitzable per JSON,
@@ -71,4 +71,12 @@ class MovieModel(BaseModel):
             }
         },
     )
+#------- Endpoints (Rutes) ------------
 
+#Aqui crearem la ruta de peticions tipo POST
+@app.post ("/peliculas/", response_model=MovieModel, status_code=status.HTTP_201_CREATED)
+async def crear_pelicula(pelicula: MovieModel = Body(...)): # Creem la funcio asincrona per a crear pelicules
+    nova_pelicula = pelicula.model_dump(by_alias = True, exclude=["id"]) #Convertim l'objecte en un diccionari
+    resultat = await movie_collection.insert_one(nova_pelicula) #Aqui agafa el diccionari i el guarda al cluster de MongoDB Atlas
+    pelicula_creada = await movie_collection.find_one({"_id":resultat.inserted_id}) # Busquem el resultat
+    return pelicula_creada #I una vegada buscat el resultat ens el retorne
