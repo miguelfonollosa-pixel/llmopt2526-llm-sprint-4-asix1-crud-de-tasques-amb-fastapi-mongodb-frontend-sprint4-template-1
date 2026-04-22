@@ -99,3 +99,11 @@ async def actualitzar_partida(id: str, pelicula: MovieModel = Body(...)): #Creem
     if resultat:
         return resultat # Si ens troba el id ho retornarem per el navegador
     raise HTTPException(status_code=404, detail=f"Pelicula {id} no trobada") #Si no ens surtira el seguent error
+
+# Creem la ruta per a fer el DELETE
+@app.delete("/pelicules/{id}", response_description="Esborra una pelicula")
+async def borrar_pelicula(id: str): #Fem una funcio asincrona anomenada borrar_pelicula
+    resultat_borrat = await movie_collection.delete_one({"_id": ObjectId(id)}) #Intentarem borrar la pelicula amb el id que li donarem
+    if resultat_borrat.delete_count == 1:
+        return Response(status_code=status.HTTP_204_NO_CONTENT) #Si hem pogut esborrar el rsultat executara aixo que vol dir que estara ben fet
+    raise HTTPException(stauts_code=404, detail=f"No s'ha pogut esborrar: ID {id} no existeix") # Si no podem borrarlo surtira este error
