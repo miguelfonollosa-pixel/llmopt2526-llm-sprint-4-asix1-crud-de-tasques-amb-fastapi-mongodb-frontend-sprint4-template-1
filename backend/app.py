@@ -80,3 +80,9 @@ async def crear_pelicula(pelicula: MovieModel = Body(...)): # Creem la funcio as
     resultat = await movie_collection.insert_one(nova_pelicula) #Aqui agafa el diccionari i el guarda al cluster de MongoDB Atlas
     pelicula_creada = await movie_collection.find_one({"_id":resultat.inserted_id}) # Busquem el resultat
     return pelicula_creada #I una vegada buscat el resultat ens el retorne
+
+#Ara aqui creem la ruta per a peticions tipo GET
+@app.get ("/peliculas/", response_description="Llista totes les pelicules", response_model=List[MovieModel])
+async def llistar_pelicules(): #Creem la funcio asincrona de llistar_pelicules
+    llista_pelicules = await movie_collection.find().to_list(1000) #Aqui li diem que busco les 1000 primeres pelicules
+    return llista_pelicules # I per ultim nos les retorna
