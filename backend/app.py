@@ -86,3 +86,16 @@ async def crear_pelicula(pelicula: MovieModel = Body(...)): # Creem la funcio as
 async def llistar_pelicules(): #Creem la funcio asincrona de llistar_pelicules
     llista_pelicules = await movie_collection.find().to_list(1000) #Aqui li diem que busco les 1000 primeres pelicules
     return llista_pelicules # I per ultim nos les retorna
+
+#Creem la ruta per a fer UPDATE
+@app.put("/peliculas/{id}", response_model=MovieModel)
+async def actualitzar_partida(id: str, pelicula: MovieModel = Body(...)): #Creem la funcio asincrona per actulitar les dades
+    dades_actualitzades = pelicula.model(by_alias=True, exclude=["id"]) #Convertim les dades que hem posats a un diccionari
+    resultat = await movie_collection.find_one_and_update( #Aqui li diem que busco el id que hem modificat
+        {"_id": ObjectId(id)},
+        {"$set": dades_actualitzades}, #I despues aqui actulitzaria les dades
+        return_document=ReturnDocument.AFTER # I ens retorna la pelicula
+    )
+    if resultat:
+        return resultat # Si ens troba el id ho retornarem per el navegador
+    raise HTTPException(status_code=404, detail=f"Pelicula {id} no trobada") #Si no ens surtira el seguent error
