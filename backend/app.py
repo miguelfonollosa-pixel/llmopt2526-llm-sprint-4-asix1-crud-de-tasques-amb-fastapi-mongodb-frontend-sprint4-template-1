@@ -107,3 +107,15 @@ async def borrar_pelicula(id: str): #Fem una funcio asincrona anomenada borrar_p
     if resultat_borrat.delete_count == 1:
         return Response(status_code=status.HTTP_204_NO_CONTENT) #Si hem pogut esborrar el rsultat executara aixo que vol dir que estara ben fet
     raise HTTPException(stauts_code=404, detail=f"No s'ha pogut esborrar: ID {id} no existeix") # Si no podem borrarlo surtira este error
+
+#Creem la ruta per a fer un PATCH i cambiar el estat de les peli
+@app.patch("/peliculas/{id}/estado", response_model=MovieModel)
+async def cambiar_estado_pelicula(id: str, nuevo_estado: str = Body()): #Fem la funcio asincrona
+    resultat = await movie_collection.find_one_and_update( #find_one_and_update busca el document y el actualitza
+        {"_id": ObjectId(id)}, #Busca el id que li hem donat
+        {"$set": {"estado": nuevo_estado}}, #Cambia el estat de la pelicula depen lo que li diguesem si vist o no vist
+        return_document = ReturnDocument.AFTER #Ens retorna la pelicual
+    )
+    if resultat:
+        return resultat # Si tot a funcionat correctament ens retorna la pelicula
+    raise HTTPException(status_code=404, detail=f"No se ha encontrado la pelicula") # Si surt malament en surtira este error
